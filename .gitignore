@@ -1,0 +1,77 @@
+# ---- Python ----
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+*.whl
+*.log
+*.coverage
+.coverage.*
+.cache/
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+.pytype/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# uv (Python package manager)
+.uv/
+uv.lock
+uv-cache/
+.uv-cache/
+
+# ---- Jupyter ----
+.ipynb_checkpoints/
+*.ipynb~
+.jupyter/
+# Common outputs
+**/*.ipynb_checkpoints
+**/*.ipynb~
+
+# ---- Apache Spark ----
+# Local Spark checkpoints & logs
+spark-warehouse/
+metastore_db/
+derby.log
+# PySpark temp files
+*.crc
+# Spark event logs
+spark-events/
+
+# ---- PyCharm / IntelliJ ----
+.idea/
+*.iml
+
+# ---- OS files ----
+.DS_Store
+Thumbs.db
+
+# ---- Editors ----
+.vscode/
+*.swp
+*.swo
+
+# ---- Miscellaneous ----
+*.sqlite
+*.db
+.env
+.env.*
+*.pem
+*.key
+*.crt
+*.jar
+.local
+
+data
+*.parquet
+*.claude

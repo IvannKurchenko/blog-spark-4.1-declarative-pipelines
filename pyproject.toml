@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+requires-python = "=3.11"
+
+[project]
+name = "blog-spark-4.1-declarative-pipelines"
+version = "0.1.0"
+dependencies = [
+    "pyspark[pipelines]==4.1.0",
+    "Faker==40.4.0",
+    "kafka-python==2.3.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff==0.14.4",
+    "black==25.11.0",
+]

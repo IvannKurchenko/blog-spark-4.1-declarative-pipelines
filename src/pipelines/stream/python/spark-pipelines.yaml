@@ -1,0 +1,5 @@
+name: flights_demo_pipeline
+libraries:
+  - glob:
+      include: ./**
+storage: file://./pipeline-storage

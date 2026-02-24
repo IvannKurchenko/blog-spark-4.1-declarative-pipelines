@@ -1,0 +1,6 @@
+services:
+  kafka:
+    image: apache/kafka:4.2.0
+    hostname: kafka
+    ports:
+      - "9092:9092"

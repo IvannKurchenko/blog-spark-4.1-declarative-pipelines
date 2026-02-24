@@ -1,0 +1,27 @@
+"""List all pipeline tables and show 10 rows per each."""
+
+import logging
+from pyspark.sql import SparkSession
+
+logging.basicConfig(level=logging.INFO)
+log = logging.getLogger(__name__)
+
+
+def main():
+    spark = SparkSession.builder.appName("Spark Check Tables").enableHiveSupport().getOrCreate()
+
+    tables = [row.name for row in spark.catalog.listTables()]
+
+    if not tables:
+        log.info("No tables found in catalog")
+        return
+
+    for table in sorted(tables):
+        log.info("Table: %s", table)
+        spark.table(table).show(10, truncate=False)
+
+    spark.stop()
+
+
+if __name__ == "__main__":
+    main()
