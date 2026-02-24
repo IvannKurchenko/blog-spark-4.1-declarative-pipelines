@@ -1,4 +1,3 @@
-export PROJECT_ROOT := $(shell pwd)
 export PYSPARK_SUBMIT_ARGS := --conf spark.sql.catalogImplementation=hive pyspark-shell
 
 setup:
@@ -47,11 +46,7 @@ pipeline-batch-python: generate-batch
 	spark-pipelines run --spec src/pipelines/batch/python/spark-pipelines.yaml
 	$(MAKE) check-tables
 
-pipeline-batch-python-full-refresh-all: generate-batch
-	spark-pipelines run --spec src/pipelines/batch/python/spark-pipelines.yaml --full-refresh-all
-	$(MAKE) check-tables
-
-pipeline-batch-sql:
+pipeline-batch-sql: generate-batch
 	spark-pipelines run --spec src/pipelines/batch/sql/spark-pipelines.yaml
 	$(MAKE) check-tables
 

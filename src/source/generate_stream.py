@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 KAFKA_BOOTSTRAP = "localhost:9092"
 KAFKA_TOPIC = "readings"
 
-DATA_DIR = Path(os.environ["PROJECT_ROOT"]) / "data"
+DATA_DIR = Path(".") / "data"
 SENSORS_FILE = DATA_DIR / "sensors.parquet"
 
 

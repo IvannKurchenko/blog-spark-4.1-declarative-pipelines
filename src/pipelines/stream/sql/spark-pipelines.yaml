@@ -1,4 +1,4 @@
-name: flights_demo_pipeline
+name: declarative_pipeline
 libraries:
   - glob:
       include: ./**

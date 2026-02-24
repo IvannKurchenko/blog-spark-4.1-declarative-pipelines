@@ -12,7 +12,7 @@ from src.source.data import generate_readings, generate_sensors
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
-DATA_DIR = Path(os.environ["PROJECT_ROOT"]) / "data"
+DATA_DIR = Path(".") / "data"
 
 SENSORS_FILE = DATA_DIR / "sensors.parquet"
 READINGS_FILE = DATA_DIR / "readings.parquet"
