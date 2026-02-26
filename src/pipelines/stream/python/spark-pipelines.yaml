@@ -1,5 +1,5 @@
 name: declarative_pipeline
 libraries:
   - glob:
-      include: ./**
-storage: file://./pipeline-storage
+      include: ./transformations.py
+storage: file:///tmp/pipeline-storage

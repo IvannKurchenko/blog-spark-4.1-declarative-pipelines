@@ -1,19 +1,64 @@
-## Blog "Spark 4.1: Declarative pipelines, a practical showcase."
+# Spark 4.1 Declarative Pipelines by Example
 
-### Introduction
+## Introduction
 
-### Repository Structure
+This repository contains companion code for the blog post "Spark 4 by example: Declarative pipelines".
+It demonstrates how to build batch and streaming ETL pipelines using Spark 4.1 Declarative Pipelines,
+with both Python and SQL implementations.
 
-- `src/`:  
-- `blog/`: Blog post content
+The demo models an IoT cold-chain warehouse monitoring scenario: sensors across multiple warehouse
+locations produce temperature and humidity readings, which are ingested, transformed, and materialized
+into fact and dimension tables.
 
-### Setup
+## Prerequisites
 
-For each data quality tool, navigate to its directory and follow these steps:
+The following tools must be installed before running the code:
 
-1. **Set up virtual environment**: Run `make setup` to create a Python virtual environment.
-2. **Install dependencies**: Run `make install` to install the required packages.
-3. **Download data (if needed)**: Run `make download-faa` and `make download-maria-db-driver` if not done at root.
+- **Python 3.11**
+- **Apache Spark 4.1**
+- **uv** - Python package manager ([install guide](https://docs.astral.sh/uv/getting-started/installation/))
+- **Docker** and **Docker Compose** - required for running Kafka
 
-## Running Evaluations
+## How to
+
+### Initial setup
+
+Create a virtual environment and install dependencies:
+
+```bash
+make setup
+make install
+```
+
+### Running batch pipelines
+
+Run a batch pipeline using Python transformations:
+
+```bash
+make pipeline-batch-python
+```
+
+Or using SQL transformations:
+
+```bash
+make pipeline-batch-sql
+```
+
+These commands will automatically start Kafka, generate batch data as Parquet files, run the pipeline, and verify the
+output tables.
+
+### Running streaming pipelines
+
+Run a streaming pipeline using Python transformations:
+
+```bash
+make pipeline-stream-python
+```
+
+Or using SQL transformations:
+
+```bash
+make pipeline-stream-sql
+```
+
 

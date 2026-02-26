@@ -5,10 +5,11 @@ Writes sensors as Parquet (if not exists) and publishes each reading as a JSON m
 
 import json
 import logging
-import os
 from pathlib import Path
 
 from kafka import KafkaProducer
+from kafka.admin import KafkaAdminClient, NewTopic
+from kafka.errors import TopicAlreadyExistsError
 
 from src.source.data import generate_readings, generate_sensors
 
@@ -31,7 +32,25 @@ def write_sensors_if_missing(sensors):
     log.info("Wrote sensors (%d rows) to %s", sensors.shape[0], SENSORS_FILE)
 
 
+def ensure_topic_exists():
+    admin = KafkaAdminClient(bootstrap_servers=KAFKA_BOOTSTRAP)
+    try:
+        # Short retention so Kafka drops old messages quickly — useful for demoing pipeline refresh behaviour.
+        admin.create_topics([NewTopic(
+            name=KAFKA_TOPIC,
+            num_partitions=1,
+            replication_factor=1,
+            topic_configs={"retention.ms": "10000"},
+        )])
+        log.info("Created topic '%s'", KAFKA_TOPIC)
+    except TopicAlreadyExistsError:
+        log.info("Topic '%s' already exists", KAFKA_TOPIC)
+    finally:
+        admin.close()
+
+
 def publish_readings(readings):
+    ensure_topic_exists()
     producer = KafkaProducer(
         bootstrap_servers=KAFKA_BOOTSTRAP,
         value_serializer=lambda v: json.dumps(v).encode("utf-8"),

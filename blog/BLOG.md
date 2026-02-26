@@ -1,6 +1,18 @@
-## Spark 4.1 by example: Declarative pipelines
-
+## Spark 4 by example: Declarative pipelines
 ![img_2.png](img_2.png)
+
+### Introduction
+In this series of blog posts we will walk though the new features and capabilities introduced to Spark 4 major and all
+current minor versions showcasing each by example you can run by easily yourself.
+
+This post focuses on of the major freshly features Declarative Pipeline.
+
+### Overview
+Spark Declarative Pipelines (SDP) have been introduced in Spark 4.1 version. SDP removes a need to organize 
+a Direct Acyclic Graph of transformations by doing this for you. All is needed to be done is just a register components
+that should work together. SDP figures out dependencies and  
+The key components of the declarative pipelines are:
+- `Flows` - the 
 
 #### References:
 - [Spark Declarative Pipelines Programming Guide](https://spark.apache.org/docs/latest/declarative-pipelines-programming-guide.html)

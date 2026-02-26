@@ -1,11 +1,11 @@
 [build-system]
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
-requires-python = "=3.11"
 
 [project]
 name = "blog-spark-4.1-declarative-pipelines"
 version = "0.1.0"
+requires-python = "==3.11.*"
 dependencies = [
     "pyspark[pipelines]==4.1.0",
     "Faker==40.4.0",

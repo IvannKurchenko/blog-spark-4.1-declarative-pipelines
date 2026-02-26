@@ -17,8 +17,9 @@ def main():
         return
 
     for table in sorted(tables):
-        log.info("Table: %s", table)
-        spark.table(table).show(10, truncate=False)
+        df = spark.table(table)
+        log.info("Table: %s | Total rows: %d", table, df.count())
+        df.show(10, truncate=False)
 
     spark.stop()
 
