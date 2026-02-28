@@ -1,18 +1,13 @@
-import os
-from pathlib import Path
-
 from pyspark import pipelines as dp
-from pyspark.sql import functions as F
-from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame
+from pyspark.sql import SparkSession
+from pyspark.sql import functions as F
 
 spark = SparkSession.builder.getOrCreate()
-
 
 @dp.materialized_view(
     name="dim_sensors",
     comment="Sensors dimensional table",
-    table_properties={"type": "materialized_view"}
 )
 def dim_sensors_mv() -> DataFrame:
     data_frame = spark.read.parquet("./data/sensors.parquet")
@@ -22,7 +17,6 @@ def dim_sensors_mv() -> DataFrame:
 @dp.materialized_view(
     name="fact_readings",
     comment="Fact table with sensors readings ",
-    table_properties={"type": "materialized_view"}
 )
 def fact_readings_mv() -> DataFrame:
     data_frame = spark.read.parquet("./data/readings.parquet")

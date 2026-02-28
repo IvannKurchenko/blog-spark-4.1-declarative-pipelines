@@ -6,7 +6,7 @@ CREATE MATERIALIZED VIEW fact_readings
 COMMENT 'Fact table with sensors readings '
 AS SELECT * FROM parquet.`./data/readings.parquet`;
 
-CREATE MATERIALIZED VIEW fact_warehouse_temperature
+CREATE TABLE fact_warehouse_temperature
 COMMENT 'Fact table of temperature statistics per location'
 AS SELECT
     s.location,

@@ -1,10 +1,7 @@
-import os
-from pathlib import Path
-
 from pyspark import pipelines as dp
-from pyspark.sql import functions as F
-from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame
+from pyspark.sql import SparkSession
+from pyspark.sql import functions as F
 from pyspark.sql.types import StructType, StructField, StringType, DoubleType
 
 spark = SparkSession.builder.getOrCreate()
@@ -45,7 +42,7 @@ def fact_readings() -> DataFrame:
     )
     return readings_df
 
-@dp.table(
+@dp.materialized_view(
     name="fact_warehouse_temperature",
     comment="Fact table of temperature statistics per location",
 )

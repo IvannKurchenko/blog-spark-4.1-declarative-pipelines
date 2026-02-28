@@ -1,4 +1,4 @@
-"""List all pipeline tables and show 10 rows per each."""
+"""List all pipeline tables and show 2 rows per each."""
 
 import logging
 from pyspark.sql import SparkSession
@@ -19,7 +19,7 @@ def main():
     for table in sorted(tables):
         df = spark.table(table)
         log.info("Table: %s | Total rows: %d", table, df.count())
-        df.show(10, truncate=False)
+        df.show(2, truncate=False)
 
     spark.stop()
 
