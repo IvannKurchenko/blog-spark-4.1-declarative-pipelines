@@ -2,36 +2,40 @@
 ![img_2.png](img_2.png)
 
 ### Introduction
-In this series of blog posts we will walk though the new features and capabilities introduced to Spark 4 major and all
-current minor versions showcasing each by example you can run by easily yourself.
+In this series of blog posts we will walk through the new features and capabilities introduced in Spark 4 major and all
+current minor versions, showcasing each with an example you can easily run yourself.
 
-This post focuses on of the major freshly features Declarative Pipeline.
+This post focuses on one of the major new features: Declarative Pipelines.
 
 ### Overview
-Spark Declarative Pipelines (SDP) have been introduced in Spark 4.1 version. SDP removes a need to organize 
-a Direct Acyclic Graph of transformations by doing this for you. All is needed to be done is just a register components
-that should work together. SDP figures out dependencies, build the execution plan and run it.  
+Managing data pipelines often means writing boilerplate code to wire up dependencies between transformations, handle
+execution order, and deal with incremental processing. Spark Declarative Pipelines (SDP), introduced in Spark 4.1,
+aim to eliminate that overhead.
+
+SDP removes the need to organize a Directed Acyclic Graph of transformations by doing this for you. All that needs
+to be done is to register the components that should work together. SDP figures out dependencies, builds the execution
+plan, and runs it.
 The key components of the declarative pipelines are:
 - `Flows` - declares a process of reading data, transforming and writing to sink.
-- `Dataset` - declares an object. Currently supported `Temporary Views`, `Materialized Views` and `Streaming Tables`.
-Please note that regular tables and views are not supported. 
-- `Pipelines` - declares a set of flows and dataset into a single executable execution unit.
+- `Dataset` - declares a data object. Currently supported types are: `Temporary Views`, `Materialized Views` and `Streaming Tables`.
+Please note that regular tables and views are not supported.
+- `Pipelines` - declares a set of flows and datasets as a single execution unit.
 
 SDP can be written using PySpark or SQL. Java and Scala SDKs are not supported at the moment of this writing.
-SDP also supports both batch and streaming pipelines, that will be shown later.
+SDP also supports both batch and streaming pipelines, as will be shown later.
 
 ### Demo example
-For the sake of the demonstration of SDP capabilities lets consider the following small hypothetical example of an
-IoT system that consist of temperature and humidity sensors that produce a number of readings. 
+To demonstrate SDP capabilities, let's consider the following small hypothetical example of an
+IoT system that consists of temperature and humidity sensors that produce a number of readings.
 Sensors data is available at `./data/sensors.parquet` and has the following schema:
 
-| Column        | Type   | Description                        |                                                                                                               
-|---------------|--------|------------------------------------|                                                                                                             
-| `sensor_id`   | string | Formatted sensor identifier        |                                                                                                               
-| `location`    | string | Warehouse location                 |                                                                                                               
+| Column        | Type   | Description                        |
+|---------------|--------|------------------------------------|
+| `sensor_id`   | string | Formatted sensor identifier        |
+| `location`    | string | Warehouse location                 |
 | `sensor_type` | string | Either `temperature` or `humidity` |
 
-Readings are present either in `./data/readings.parquet` or published to  local Kafka to `readings` topic as json.
+Readings are present either in `./data/readings.parquet` or published to a local Kafka `readings` topic as JSON.
 
 | Column       | Type   | Description                                           |
 |--------------|--------|-------------------------------------------------------|
@@ -41,15 +45,15 @@ Readings are present either in `./data/readings.parquet` or published to  local 
 | `value`      | float  | Measurement value (temp: -5..10, humidity: 30..70)    |
 | `unit`       | string | `°C` for temperature, `%RH` for humidity              |
 
-The data for both data sources is synthetically generated. 
+Both datasets are synthetically generated.
 
-The goal would be to write a pipeline to ingest data from either of the sources and calculate average temperature per
-location. 
+The goal would be to write a pipeline to ingest data from either of the sources and calculate maximum temperature per
+location.
 
-### Batch pipeline using Python 
-For batch pipelines SDP relies on temporary views and materialized views for this case. Any data source that you would 
-like to work with SDP needs to be lifted to either of two objects. Python SDK provides a pretty easy and convenient
-way to declare the objects by using decorators from `pyspark.pipelines` package. 
+### Batch pipeline using Python
+For batch pipelines, SDP relies on temporary views and materialized views. Any data source that you would
+like to use with SDP needs to be represented as one of these two object types. The Python SDK provides an easy and
+convenient way to declare the objects by using decorators from `pyspark.pipelines` package.
 Let's write `transformations.py` that will contain all the pipeline objects.
 ```python
 from pyspark import pipelines as dp
@@ -92,7 +96,7 @@ def fact_warehouse_temperature_mv() -> DataFrame:
     )
     return data_frame
 ```
-After we have this declaration in place, we need to create the SDP YAML configuration file `spark-pipeline.yaml`:
+After we have this declaration in place, we need to create the SDP YAML configuration file `spark-pipelines.yaml`:
 ```yaml
 # The name of pipeline
 name: declarative_pipeline
@@ -104,15 +108,15 @@ libraries:
 # Path to the streaming checkpointing storage.
 storage: file:///tmp/pipeline-storage
 ```
-Although any streaming capabilities are not used so far, we still need to declare `storage` configuration for structured
+Although no streaming capabilities are used yet, we still need to declare `storage` configuration for structured
 streaming checkpointing.
 
-Now we have two main components we can run the pipeline using `spark-pipelines` command. For instance:
+Now that we have the two main components, we can run the pipeline using `spark-pipelines` command. For instance:
 ```shell
 spark-pipelines run --spec src/pipelines/batch/python/spark-pipelines.yaml
 ```
 
-After the run we can explore local catalog and find newly created tables. Example:
+After the run, we can explore the local catalog and find newly created tables. Example:
 ```text
 dim_sensors | Total rows: 10
 +----------+-----------+-----------+
@@ -139,10 +143,10 @@ Table: fact_warehouse_temperature | Total rows: 5
 +-----------+---------------+
 ```
 
-SDP recomputes and overwrites materialized views on each run, so if we regenerate upstream data and re-run the 
+SDP recomputes and overwrites materialized views on each run, so if we regenerate upstream data and re-run the
 `spark-pipelines` again we will observe completely new numbers.
 
-Although if this is this is not desired, `spark-pipelines run` has `--refresh` configuration allowing to specify
+However, if this is not desired, `spark-pipelines run` has `--refresh` configuration allowing to specify
 datasets to recompute only.
 
 ### Batch pipeline using SQL
@@ -175,16 +179,17 @@ libraries:
 storage: file:///tmp/pipeline-storage
 ```
 
-However, in `include` option can also be specified a file pattern like `folder/**` for convenience.
-After having this in place same `spark-pipelines run` can be used to run the pipeline.
+However, the `include` option can also specify a file pattern like `folder/**` for convenience.
+After having this in place, the same `spark-pipelines run` can be used to run the pipeline.
 
-### Stream pipeline using Python
-Now we have a look at the SDP stream capabilities. SDP can declare streaming table among dataset. Unlike materialized views,
-streaming tables updated with each run using `append` mode, instead of `overwrite`.
+### Streaming pipeline using Python
+So far we have looked at batch pipelines, but in a real-world IoT scenario sensor readings arrive continuously.
+SDP supports streaming pipelines to handle exactly this case. SDP can declare streaming tables as a dataset type.
+Unlike materialized views, streaming tables are updated with each run using `append` mode, instead of `overwrite`.
 
-For the sake of demonstration lets consider an example of locally running Kafka with `readings` topic which contains
-JSON's sensors readings of the same content as we've seen in `readings.parquet` before. The complete solution would look 
-the following:
+Let's consider an example of a locally running Kafka with `readings` topic which contains
+JSON sensor readings with the same content as we've seen in `readings.parquet` before. The complete solution would
+look like the following:
 ```python
 from pyspark import pipelines as dp
 from pyspark.sql import DataFrame
@@ -246,16 +251,16 @@ def fact_warehouse_temperature_mv() -> DataFrame:
     return data_frame
 ```
 
-Pay attention to the following changes in comparison to batch update:
-- `fact_readings` - are declared now with `@dp.table` to create streaming tables.
-- `@dp.table` - creates **streaming** but not a regular catalog table.
--  `fact_warehouse_temperature` - remains as materialized view, because it contains aggregations, that can be written in append mode.   
+Pay attention to the following changes compared to the batch version:
+- `fact_readings` is now declared with `@dp.table` to create a streaming table.
+- `@dp.table` creates a **streaming** table, not a regular catalog table.
+- `fact_warehouse_temperature` remains a materialized view, because it contains aggregations that cannot be processed in append mode.
 
-Now we can run this pipeline using same `spark-pipelines.yaml` and `spark-pipelines` command. The first run would give
-similar result as in batch use case - we will have same number of rows in the table as in the topic (~10K).
-Although, if messages have been removed from the Kafka's topic and new have been published after, second pipeline run
-would result into twice bigger `fact_readings` table size because messages have been appended. So resulting table would
-look similar to:
+Now we can run this pipeline using the same `spark-pipelines.yaml` and `spark-pipelines` command. The first run would give
+a similar result as in the batch use case - we will have the same number of rows in the table as in the topic (~10K).
+However, if messages have been removed from the Kafka topic and new ones have been published afterwards, a second pipeline
+run would result in a twice as large `fact_readings` table because messages have been appended. So the resulting table
+would look similar to:
 ```text
 fact_readings | Total rows: 20160
 +------------------------------------+----------+--------------------+-----+----+
@@ -266,19 +271,30 @@ fact_readings | Total rows: 20160
 +------------------------------------+----------+--------------------+-----+----+
 ```
 
-`spark-pipelines run` command has a special option `--full-refresh-all` that works only for streaming dataset, which 
-essentially recomputes the streaming table from the scratch. In our case, that would mean truncating the table and writing
+The `spark-pipelines run` command has a special option `--full-refresh-all` that works only for streaming datasets, which
+essentially recomputes the streaming table from scratch. In our case, that would mean truncating the table and writing
 all the messages from the Kafka topic.
 
-### Stream pipeline using SQL
-Although it is possible to do declare streaming table in Spark SQL using `CREATE STREAMING TABLE` statement,
-It possible to declare steaming tables from the other tables, but at sources like Kafka topic.
-
 ### Pitfalls
-Although SDP has also a number of this to be aware about, such that each dataset declaration should cause
-no side effects (e.g. call `write` operation).
+SDP has a number of caveats to be aware of.
+
+The dataset declaration should cause no side effects, such as `write`. That makes merge for Delta tables a bit problematic,
+because datasets can be updated only using `overwrite` or `append` mode.
+
+JVM languages are not supported at the SDK level at the moment.
+
+Regular tables and views cannot be used as SDP dataset types — only `Temporary Views`, `Materialized Views`,
+and `Streaming Tables` are supported.
+
 See more in the [Important Considerations](https://spark.apache.org/docs/latest/declarative-pipelines-programming-guide.html#important-considerations)
 
+### Conclusion
+Spark Declarative Pipelines bring a significant simplification to building data pipelines. Instead of manually
+orchestrating a DAG of transformations, you declare datasets and let Spark handle dependency resolution and execution
+order. SDP supports both batch and streaming use cases, and pipelines can be defined in Python, SQL, or a combination
+of both.
+
+Complete source code can be found [here](https://github.com/IvannKurchenko/blog-spark-4.1-declarative-pipelines)
 
 #### References:
 - [Spark Declarative Pipelines Programming Guide](https://spark.apache.org/docs/latest/declarative-pipelines-programming-guide.html)
